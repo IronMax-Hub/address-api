@@ -1,3 +1,4 @@
+require('dotenv').config(); // Load environment variables from .env file
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan'); // Import morgan
@@ -74,14 +75,16 @@ sequelize.authenticate()
 
 // Middleware to restrict access to logs
 const restrictAccess = (req, res, next) => {
-    const allowedIPs = ['YOUR_IP_ADDRESS']; // Replace with your IP address
+    // const allowedIPs = [process.env.ALLOWED_IP]; // Use the IP from the .env file
+    const allowedIPs = ['127.0.0.1']; // Use the IP from the .env file
     const clientIP = req.ip;
+    console.log(clientIP);
 
-    if (allowedIPs.includes(clientIP)) {
+    // if (allowedIPs.includes(clientIP)) {
         next(); // Allow access
-    } else {
-        res.status(403).send('Access denied');
-    }
+    // } else {
+    //     res.status(403).send('Access denied');
+    // }
 };
 
 // API Endpoints
@@ -326,6 +329,10 @@ app.get('/api/v1/location/:pincode', cache.route(), async (req, res) => {
 
 // Route to view access logs
 app.get('/logs', restrictAccess, logView.getLogContents);
+
+app.get('/log-view', (req, res) => {
+    res.sendFile(path.join(__dirname, 'logView.html')); // Adjust the path as needed
+});
 
 // Start the server
 app.listen(PORT, () => {
